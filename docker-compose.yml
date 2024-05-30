@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+    #app:
+    #    image: node:16-alpine
+    #    container_name: nestjs_app
+    #    working_dir: /usr/src/app
+    #    volumes:
+    #        - .:/usr/src/app
+    #        - /usr/src/app/node_modules
+    #    ports:
+    #        - "3000:3000"
+    #    command: sh -c "npm install && npm run start:dev"
+    #    environment:
+    #        - NODE_ENV=development
+    #        - DB_HOST=postgres
+    #        - DB_PORT=5432
+    #        - DB_USER=postgres
+    #        - DB_PASSWORD=postgres
+    #        - DB_DATABASE=mydatabase
+    #    depends_on:
+    #        - postgres
+
+    postgres:
+        image: postgres:15.1
+        container_name: tasks_postgres_db
+        restart: always
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: db_tasks
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+            - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+    postgres_data:
