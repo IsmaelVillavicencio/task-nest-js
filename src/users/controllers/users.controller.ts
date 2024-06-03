@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, Res } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
-import { UserDto, UserUpdateDto } from '../dto/user.dto';
+import { AddProjectToUserDto, UserDto, UserUpdateDto } from '../dto/user.dto';
 import { ResponseService } from 'src/utils/json-response.service';
 import { Response } from 'express';
 import { JsonResponse } from 'src/interfaces/json-response';
@@ -16,6 +16,11 @@ export class UsersController {
     @Post('register')
     public async createUser(@Body() body: UserDto, @Res() res: Response) {
         return this.createJsonResponse(res, 'User created', 'User created successfully', await this.usersService.createUser(body));
+    }
+
+    @Post('add-project')
+    public async addProjectToUser(@Body() body: AddProjectToUserDto, @Res() res: Response) {
+        return this.createJsonResponse(res, 'Project added', 'Project added to user successfully', await this.usersService.addProjectToUser(body));
     }
 
     @Get('all')

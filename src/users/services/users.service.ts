@@ -1,30 +1,43 @@
 import { HttpException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../entities/user.entity';
-import { DeleteResult, Repository, UpdateResult } from 'typeorm';
-import { UserDto, UserUpdateDto } from '../dto/user.dto';
+import { In, Repository } from 'typeorm';
+import { AddProjectToUserDto, UserDto, UserUpdateDto } from '../dto/user.dto';
 import { UserRepository } from '../repository/user.repository';
+import { UsersProjects } from '../entities/users-projects.entity';
 
 @Injectable()
 export class UsersService {
 
+    
     constructor(
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
+        @InjectRepository(UsersProjects)
+        private readonly usersProjectsRepository: Repository<UsersProjects>,
         private userRepositorycustom: UserRepository,
+        
     ) { }
-
+    
     private handleException(error: any): void {
         if (error instanceof HttpException) {
             throw error;
         }
         throw new InternalServerErrorException(error.message);
     }
-
+    
     public async createUser(user: UserDto): Promise<User> {
         try {
             return await this.userRepository.save(user);
         } catch (error) {
+            this.handleException(error);
+        }
+    }
+    
+    public async addProjectToUser(body: AddProjectToUserDto): Promise<UsersProjects> {
+        try {
+            return await this.usersProjectsRepository.save(body);
+        }catch (error) {
             this.handleException(error);
         }
     }
@@ -82,7 +95,11 @@ export class UsersService {
 
     private async findUserById(id: string): Promise<User> {
         try {
-            const user = await this.userRepository.createQueryBuilder('user').where('user.id = :id', { id }).getOne();
+            const user = await this.userRepository.createQueryBuilder('user').where('user.id = :id', { id })
+            .leftJoinAndSelect('user.projects', 'projects')
+            .leftJoinAndSelect('projects.project', 'project')
+            .getOne();
+            console.log({user})
             if (!user) {
                 throw new NotFoundException(`User with id ${id} not found.`);
             }
