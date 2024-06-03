@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSourceConfig } from './config/data.source';
 import { ProjectsModule } from './projects/projects.module';
+import { GlobalModuleModule } from './global-module/global-module.module';
 
 @Module({
 	imports: [
@@ -16,6 +17,7 @@ import { ProjectsModule } from './projects/projects.module';
 		}),
 		UsersModule,
 		ProjectsModule,
+		GlobalModuleModule,
 	],
 })
 export class AppModule { }

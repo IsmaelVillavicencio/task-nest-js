@@ -49,37 +49,30 @@ export class UsersService {
         }
     }
 
-    public async updateUser(id: string, userUpdate: UserUpdateDto): Promise<UpdateResult | undefined> {
+    public async updateUser(id: string, userUpdate: UserUpdateDto): Promise<User> {
         try {
-            const user: UpdateResult = await this.userRepository.update(id, userUpdate);
-            if (user.affected === 0) {
-                return undefined;
-            }
-            return user;
+            const userFound = await this.findUserById(id);
+            await this.userRepository.update(userFound.id, userUpdate);
+            return await this.findUserById(id);
         } catch (error) {
             this.handleException(error);
         }
     }
 
-    public async deleteUser(id: string): Promise<{ success: boolean; message: string; data?: DeleteResult }> {
+    public async deleteUser(id: string): Promise<void> {
         try {
-            const result = await this.userRepository.delete(id);
-            if (!result.affected) {
-                throw new NotFoundException(`User with id ${id} not found.`);
-            }
-            return { success: true, message: 'User deleted successfully', data: result };
+            const userFound = await this.findUserById(id);
+            await this.userRepository.delete(userFound.id);
         } catch (error) {
             this.handleException(error);
-            return { success: false, message: (error as Error).message };
         }
-
     }
 
     public async findUserByName(firstName: string, lastName: string): Promise<User[]> {
         try {
             const users = await this.userRepositorycustom.findByName(firstName, lastName);
             if (users.length === 0) {
-                throw new NotFoundException(`User with name ${firstName} ${lastName} not found.`);
+                throw new NotFoundException(`User with first name [${firstName}] and last name [${lastName}] not found.`);
             }
             return users;
         } catch (error) {
